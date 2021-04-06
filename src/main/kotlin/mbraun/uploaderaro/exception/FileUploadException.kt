@@ -1,4 +1,4 @@
 package mbraun.uploaderaro.exception
 
-class FileUploadExceptionAdvice {
+class FileUploadException {
 }
