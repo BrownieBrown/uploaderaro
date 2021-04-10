@@ -1,10 +1,23 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import './DropZone.css'
 
 const DropZone = () => {
 
     const [selectedFiles, setSelectedFiles] = useState([])
     const [errorMessage, setErrorMessage] = useState("")
+    const [validFiles, setValidFiles] = useState([]);
+
+    useEffect(() => {
+        let filteredArray = selectedFiles.reduce((file, current) => {
+            const fileNameExists = file.find(item => item.name === current.name)
+            if (!fileNameExists) {
+                return file.concat([current])
+            } else {
+                return file
+            }
+        }, [])
+        setValidFiles([...filteredArray])
+    }, [selectedFiles])
 
     const validateFile = (file) => {
         const validTypes = ["image/jpeg", "image/jpg", "image/png", "image/gif", "image/x-icon"];
@@ -71,10 +84,10 @@ const DropZone = () => {
             </div>
             <div className="file-display-container">
                 {
-                    selectedFiles.map((data, index) =>
+                    validFiles.map((data, index) =>
                         <div className="file-status-bar" key={index}>
                             <div>
-                                <div className="file-type-logo"></div>
+                                <div className="file-type-logo"/>
                                 <div className="file-type">{fileType(data.name)}</div>
                                 <span className={`file-name ${data.invalid ? 'file-error' : ''}`}>{data.name}</span>
                                 <span className="file-size">({fileSize(data.size)})</span> {data.invalid && <span className='file-error-message'>({errorMessage})</span>}
