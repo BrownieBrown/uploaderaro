@@ -1,4 +1,7 @@
 package mbraun.uploaderaro.repository
 
-interface FileRepository {
+import mbraun.uploaderaro.model.File
+import org.springframework.data.jpa.repository.JpaRepository
+
+interface FileRepository: JpaRepository<File, String>  {
 }

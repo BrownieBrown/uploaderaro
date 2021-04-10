@@ -1,5 +1,6 @@
 import React, {useEffect, useRef, useState} from 'react';
 import './DropZone.css'
+import http from "../http-common"
 
 const DropZone = () => {
 
@@ -10,6 +11,10 @@ const DropZone = () => {
     const modalImageRef = useRef()
     const modalRef = useRef()
     const fileInputRef = useRef()
+    const uploadModalRef = useRef()
+    const uploadRef = useRef()
+    const progressRef = useRef()
+
 
     const dragOver = (e) => {
         e.preventDefault()
@@ -94,7 +99,35 @@ const DropZone = () => {
     }
 
     const uploadFiles = () => {
+        uploadModalRef.current.style.display ="block"
+        uploadRef.current.innerHTML = "File(s) Uploading..."
+        for (let i = 0; i < validFiles.length; i++) {
+            const formData = new FormData()
+            formData.append("file", validFiles[i])
+            http.post("/upload", formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data"
+                },
+                onUploadProgress: (progressEvent) => {
+                    const uploadPercentage = Math.floor((progressEvent.loaded / progressEvent.total) * 100);
 
+                    progressRef.current.innerHTML = `${uploadPercentage}%`;
+                    progressRef.current.style.width = `${uploadPercentage}%`;
+
+                    if (uploadPercentage === 100) {
+                        uploadRef.current.innerHTML = 'File(s) Uploaded';
+                        validFiles.length = 0;
+                        setValidFiles([...validFiles]);
+                        setSelectedFiles([...validFiles]);
+                        setUnsupportedFiles([...validFiles]);
+                    }
+                }
+            }).catch(() => {
+                uploadRef.current.innerHTML = `<span class="error">Error Uploading File(s)</span>`
+                progressRef.current.style.backgroundColor = 'red'
+            })
+
+        }
     }
 
     const fileInputClicked = () => {
@@ -120,6 +153,10 @@ const DropZone = () => {
     const closeModal = () => {
         modalRef.current.style.display = "none"
         modalImageRef.current.style.backgroundImage = 'none'
+    }
+
+    const closeUploadModal = () => {
+        uploadModalRef.current.style.display = 'none';
     }
 
     return (

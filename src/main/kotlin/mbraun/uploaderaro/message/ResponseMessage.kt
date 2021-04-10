@@ -1,4 +1,3 @@
 package mbraun.uploaderaro.message
 
-class ResponseMessage {
-}
+class ResponseMessage(val message: String)
