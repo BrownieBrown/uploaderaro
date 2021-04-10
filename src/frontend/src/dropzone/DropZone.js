@@ -6,38 +6,9 @@ const DropZone = () => {
     const [selectedFiles, setSelectedFiles] = useState([])
     const [errorMessage, setErrorMessage] = useState("")
     const [validFiles, setValidFiles] = useState([]);
+    const [unsupportedFiles, setUnsupportedFiles] = useState([])
     const modalImageRef = useRef()
     const modalRef = useRef()
-
-    useEffect(() => {
-        let filteredArray = selectedFiles.reduce((file, current) => {
-            const fileNameExists = file.find(item => item.name === current.name)
-            if (!fileNameExists) {
-                return file.concat([current])
-            } else {
-                return file
-            }
-        }, [])
-        setValidFiles([...filteredArray])
-    }, [selectedFiles])
-
-    const validateFile = (file) => {
-        const validTypes = ["image/jpeg", "image/jpg", "image/png", "image/gif", "image/x-icon"]
-        return validTypes.indexOf(file.type) !== -1
-
-    }
-
-    const handleFiles = (files) => {
-        for (let i = 0; i < files.length; i++) {
-            if (validateFile(files[i])) {
-                setSelectedFiles(prevArray => [...prevArray, files[i]]);
-            } else {
-                files[i]['invalid'] = true;
-                setSelectedFiles(prevArray => [...prevArray, files[i]]);
-                setErrorMessage('File type not permitted')
-            }
-        }
-    }
 
     const dragOver = (e) => {
         e.preventDefault()
@@ -59,6 +30,18 @@ const DropZone = () => {
         }
     }
 
+    useEffect(() => {
+        let filteredArray = selectedFiles.reduce((file, current) => {
+            const fileNameExists = file.find(item => item.name === current.name)
+            if (!fileNameExists) {
+                return file.concat([current])
+            } else {
+                return file
+            }
+        }, [])
+        setValidFiles([...filteredArray])
+    }, [selectedFiles])
+
     const fileSize = (size) => {
         if (size === 0) return '0 Bytes'
         const k = 1024
@@ -71,17 +54,51 @@ const DropZone = () => {
         return fileName.substring(fileName.lastIndexOf('.') + 1, fileName.length) || fileName;
     }
 
+    const validateFile = (file) => {
+        const validTypes = ["image/jpeg", "image/jpg", "image/png", "image/gif", "image/x-icon"]
+        return validTypes.indexOf(file.type) !== -1
+
+    }
+
+    const handleFiles = (files) => {
+        for (let i = 0; i < files.length; i++) {
+            if (validateFile(files[i])) {
+                setSelectedFiles(prevArray => [...prevArray, files[i]]);
+            } else {
+                files[i]['invalid'] = true;
+                setSelectedFiles(prevArray => [...prevArray, files[i]]);
+                setErrorMessage('File type not permitted')
+                setUnsupportedFiles(prevArray => [...prevArray, files[i]])
+            }
+        }
+    }
+
     const removeFile = (name) => {
         const validFileIndex = validFiles.findIndex(e => e.name === name)
+
         validFiles.splice(validFileIndex, 1)
         setValidFiles([...validFiles])
+
         const selectedFileIndex = selectedFiles.findIndex(e => e.name === name)
+
         selectedFiles.splice(selectedFileIndex, 1)
         setSelectedFiles([...selectedFiles])
+
+        const unsupportedFileIndex = unsupportedFiles.findIndex(e => e.name === name)
+
+        if (unsupportedFileIndex !== -1) {
+            unsupportedFiles.splice(unsupportedFileIndex, 1)
+            setUnsupportedFiles([...unsupportedFiles])
+        }
+    }
+
+    const uploadFiles = () => {
+
     }
 
     const openImageModal = (file) => {
         const reader = new FileReader()
+
         modalRef.current.style.display = "block"
         reader.readAsDataURL(file)
         reader.onload = function (e) {
@@ -97,7 +114,8 @@ const DropZone = () => {
     return (
         <>
             <div className="container">
-                <button className="file-upload-btn">Upload Files</button>
+                {unsupportedFiles.length === 0 && validFiles.length ? <button className="file-upload-btn" onClick={() => uploadFiles()}>Upload Files</button> : ''}
+                {unsupportedFiles.length ? <p>Please remove all unsupported files.</p> : ''}
                 <div className="drop-container"
                      onDragOver={dragOver}
                      onDragEnter={dragEnter}
