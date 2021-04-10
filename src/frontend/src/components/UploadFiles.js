@@ -1,5 +1,6 @@
 import React, {Component} from "react";
 import UploadService from "../services/upload-files.service"
+import {Button, Progress} from 'antd';
 
 export default class UploadFiles extends Component {
     constructor(props) {
@@ -13,6 +14,14 @@ export default class UploadFiles extends Component {
 
             fileInfos: [],
         }
+    }
+
+    componentDidMount() {
+        UploadService.getFiles().then((response) => {
+            this.setState({
+                fileInfos: response.data
+            })
+        })
     }
 
     selectFile(event) {
@@ -56,5 +65,28 @@ export default class UploadFiles extends Component {
     }
 
     render() {
+        const {
+            selectedFiles,
+            currentFile,
+            progress,
+            message,
+            fileInfos
+        } = this.state
+
+        return (
+            <div>
+                {currentFile && (
+                    <div className="progress">
+                        <Progress className ="progress-bar" type="circle" percent={progress} />
+                        {progress}%
+                    </div>
+                )}
+                <label className="btn-default">
+                    <input type="file" onChange={this.selectFile}/>
+                </label>
+
+                <Button>Upload</Button>
+            </div>
+        )
     }
 }

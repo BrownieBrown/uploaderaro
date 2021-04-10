@@ -1,10 +1,16 @@
-import React, { Component } from 'react'
-import 'antd/dist/antd.css'
+import React from "react";
+import './App.css'
+import DropZone from "./dropzone/DropZone";
 
-class App extends Component {
-    render() {
-        // ..
-    }
+function App() {
+    return (
+        <div>
+            <p className="title">Upload your image</p>
+            <div className="content">
+                <DropZone />
+            </div>
+        </div>
+    )
 }
 
-export default App;
+export default App
