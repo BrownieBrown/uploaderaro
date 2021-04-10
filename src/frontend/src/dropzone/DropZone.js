@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import './DropZone.css'
 
 const DropZone = () => {
@@ -6,6 +6,8 @@ const DropZone = () => {
     const [selectedFiles, setSelectedFiles] = useState([])
     const [errorMessage, setErrorMessage] = useState("")
     const [validFiles, setValidFiles] = useState([]);
+    const modalImageRef = useRef()
+    const modalRef = useRef()
 
     useEffect(() => {
         let filteredArray = selectedFiles.reduce((file, current) => {
@@ -76,37 +78,60 @@ const DropZone = () => {
         const selectedFileIndex = selectedFiles.findIndex(e => e.name === name)
         selectedFiles.splice(selectedFileIndex, 1)
         setSelectedFiles([...selectedFiles])
-}
+    }
+
+    const openImageModal = (file) => {
+        const reader = new FileReader()
+        modalRef.current.style.display = "block"
+        reader.readAsDataURL(file)
+        reader.onload = function (e) {
+            modalImageRef.current.style.backgroundImage = `url(${e.target.result})`
+        }
+    }
+
+    const closeModal = () => {
+        modalRef.current.style.display = "none"
+        modalImageRef.current.style.backgroundImage = 'none'
+    }
 
     return (
-        <div className="container">
-            <div className="drop-container"
-                 onDragOver={dragOver}
-                 onDragEnter={dragEnter}
-                 onDragLeave={dragLeave}
-                 onDrop={fileDrop}
-            >
-                <div className="drop-message">
-                    <div className="upload-icon"/>
-                    Upload your image
+        <>
+            <div className="container">
+                <button className="file-upload-btn">Upload Files</button>
+                <div className="drop-container"
+                     onDragOver={dragOver}
+                     onDragEnter={dragEnter}
+                     onDragLeave={dragLeave}
+                     onDrop={fileDrop}
+                >
+                    <div className="drop-message">
+                        <div className="upload-icon"/>
+                        Upload your image
+                    </div>
+                </div>
+                <div className="file-display-container">
+                    {
+                        validFiles.map((data, index) =>
+                            <div className="file-status-bar" key={index}>
+                                <div onClick={!data.invalid ? ()=> openImageModal(data) : () => removeFile(data.name)}>
+                                    <div className="file-type-logo"/>
+                                    <div className="file-type">{fileType(data.name)}</div>
+                                    <span className={`file-name ${data.invalid ? 'file-error' : ''}`}>{data.name}</span>
+                                    <span className="file-size">({fileSize(data.size)})</span> {data.invalid && <span className='file-error-message'>({errorMessage})</span>}
+                                </div>
+                                <div className="file-remove" onClick={() => removeFile(data.name)}>X</div>
+                            </div>
+                        )
+                    }
                 </div>
             </div>
-            <div className="file-display-container">
-                {
-                    validFiles.map((data, index) =>
-                        <div className="file-status-bar" key={index}>
-                            <div>
-                                <div className="file-type-logo"/>
-                                <div className="file-type">{fileType(data.name)}</div>
-                                <span className={`file-name ${data.invalid ? 'file-error' : ''}`}>{data.name}</span>
-                                <span className="file-size">({fileSize(data.size)})</span> {data.invalid && <span className='file-error-message'>({errorMessage})</span>}
-                            </div>
-                            <div className="file-remove" onClick={() => removeFile(data.name)}>X</div>
-                        </div>
-                    )
-                }
+
+            <div className="modal" ref={modalRef}>
+                <div className="overlay"></div>
+                <span className="close" onClick={(() => closeModal())}>X</span>
+                <div className="modal-image" ref={modalImageRef}></div>
             </div>
-        </div>
+        < />
     )
 }
 export default DropZone
