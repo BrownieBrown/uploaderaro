@@ -9,6 +9,7 @@ const DropZone = () => {
     const [unsupportedFiles, setUnsupportedFiles] = useState([])
     const modalImageRef = useRef()
     const modalRef = useRef()
+    const fileInputRef = useRef()
 
     const dragOver = (e) => {
         e.preventDefault()
@@ -96,6 +97,16 @@ const DropZone = () => {
 
     }
 
+    const fileInputClicked = () => {
+        fileInputRef.current.click()
+    }
+
+    const filesSelected = () => {
+        if (fileInputRef.current.files.length) {
+            handleFiles(fileInputRef.current.files)
+        }
+    }
+
     const openImageModal = (file) => {
         const reader = new FileReader()
 
@@ -121,11 +132,19 @@ const DropZone = () => {
                      onDragEnter={dragEnter}
                      onDragLeave={dragLeave}
                      onDrop={fileDrop}
+                     onClick={fileInputClicked}
                 >
                     <div className="drop-message">
                         <div className="upload-icon"/>
                         Upload your image
                     </div>
+                    <input
+                        ref={fileInputRef}
+                        className="file-input"
+                        type="file"
+                        multiple
+                        onChange={filesSelected}
+                    />
                 </div>
                 <div className="file-display-container">
                     {
@@ -145,9 +164,20 @@ const DropZone = () => {
             </div>
 
             <div className="modal" ref={modalRef}>
-                <div className="overlay"></div>
+                <div className="overlay"/>
                 <span className="close" onClick={(() => closeModal())}>X</span>
-                <div className="modal-image" ref={modalImageRef}></div>
+                <div className="modal-image" ref={modalImageRef}/>
+            </div>
+
+            <div className="upload-modal" ref={uploadModalRef}>
+                <div className="overlay"></div>
+                <div className="close" onClick={(() => closeUploadModal())}>X</div>
+                <div className="progress-container">
+                    <span ref={uploadRef}></span>
+                    <div className="progress">
+                        <div className="progress-bar" ref={progressRef}></div>
+                    </div>
+                </div>
             </div>
         < />
     )
