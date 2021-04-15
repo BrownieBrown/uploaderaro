@@ -31,4 +31,4 @@ More coming
 Project is: _in progress_ while working on other learning concepts
 
 ## Contact
-Created by [@browniebytes](https://www.flynerd.pl/) - feel free to contact me!
+Created by [@browniebytes](https://www.browniebytes.de) - feel free to contact me!
